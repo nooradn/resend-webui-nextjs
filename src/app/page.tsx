@@ -1,19 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Eye, EyeOff, Moon, Sun } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
 
 type LogKind = "info" | "success" | "error";
 
@@ -28,8 +15,6 @@ type Result = {
   kind: "success" | "error";
   html: string;
 };
-
-type Theme = "light" | "dark";
 
 const STORAGE_KEY = "resend-form";
 const FIELD_NAMES = [
@@ -54,12 +39,6 @@ const EMPTY_FORM: FormState = {
   content: "",
 };
 
-const LOG_COLOR: Record<LogKind, string> = {
-  info: "text-foreground",
-  success: "text-emerald-600 dark:text-emerald-400",
-  error: "text-destructive",
-};
-
 function formatTime(): string {
   return new Date().toLocaleTimeString([], {
     hour: "2-digit",
@@ -74,7 +53,6 @@ export default function Home() {
   const [result, setResult] = useState<Result | null>(null);
   const [sending, setSending] = useState(false);
   const [revealed, setRevealed] = useState(false);
-  const [theme, setTheme] = useState<Theme>("light");
 
   const logListRef = useRef<HTMLDivElement>(null);
   const checkTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -140,11 +118,6 @@ export default function Home() {
   );
 
   useEffect(() => {
-    const current = document.documentElement.dataset.theme;
-    if (current === "dark" || current === "light") setTheme(current);
-  }, []);
-
-  useEffect(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
 
@@ -190,8 +163,8 @@ export default function Home() {
   }
 
   function toggleTheme() {
-    const next: Theme = theme === "dark" ? "light" : "dark";
-    setTheme(next);
+    const next =
+      document.documentElement.dataset.theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
     localStorage.setItem("theme", next);
   }
@@ -241,187 +214,178 @@ export default function Home() {
   }
 
   return (
-    <div className="relative min-h-screen">
-      <Button
+    <>
+      <button
         id="theme-toggle"
         type="button"
-        variant="outline"
-        size="icon"
         aria-label="Toggle theme"
         onClick={toggleTheme}
-        className="fixed top-4 right-4 z-10"
       >
-        {theme === "dark" ? <Sun /> : <Moon />}
-      </Button>
+        <span className="icon-sun">☀</span>
+        <span className="icon-moon">☾</span>
+      </button>
 
-      <main className="mx-auto grid min-h-screen max-w-5xl grid-cols-1 items-center justify-center gap-6 px-4 pb-32 lg:grid-cols-[minmax(0,460px)_minmax(0,500px)]">
-        <Card
-          id="log-panel"
-          className="flex h-[40rem] flex-col gap-0 overflow-hidden py-0"
-        >
-          <CardHeader className="flex shrink-0 flex-row items-center justify-between gap-2 border-b px-4 py-3">
-            <CardTitle className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-              Logs
-            </CardTitle>
-            <Button
+      <main className="layout">
+        <aside className="logs">
+          <div className="logs-head">
+            <h2>Logs</h2>
+            <button
               id="clear-logs"
               type="button"
-              variant="outline"
-              size="xs"
+              className="logs-clear"
               onClick={() => setLogs([])}
             >
               Clear
-            </Button>
-          </CardHeader>
+            </button>
+          </div>
           <div
             id="log-list"
-            ref={logListRef}
+            className="logs-body"
             role="log"
             aria-live="polite"
-            className="flex-1 overflow-y-auto p-2 font-mono text-xs leading-relaxed"
+            ref={logListRef}
           >
             {logs.map((entry) => (
-              <div
-                key={entry.id}
-                className={cn(
-                  "flex gap-2 rounded-md px-1.5 py-1 break-words",
-                  LOG_COLOR[entry.kind],
-                )}
-              >
-                <time className="shrink-0 text-muted-foreground">
-                  {entry.time}
-                </time>
+              <div key={entry.id} className={`log-entry log-${entry.kind}`}>
+                <time>{entry.time}</time>
                 <span>{entry.message}</span>
               </div>
             ))}
           </div>
-        </Card>
+        </aside>
 
-        <Card className="w-full max-w-[500px] justify-self-center">
-          <CardHeader>
-            <h1
-              id="page-title"
-              className="font-heading text-center text-2xl font-bold"
-            >
-              Resend Email Client
-            </h1>
-          </CardHeader>
+        <div className="card">
+          <h1>Resend Email Client</h1>
 
-          <CardContent>
-            <form id="email-form" onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="apiKey">RESEND_API_KEY</Label>
-                <div className="relative">
-                  <Input
-                    id="apiKey"
-                    name="apiKey"
-                    type={revealed ? "text" : "password"}
-                    required
-                    placeholder="re_..."
-                    className="pr-9"
-                    value={form.apiKey}
-                    onChange={(e) => updateField("apiKey", e.target.value)}
-                  />
-                  <Button
-                    id="toggle-api-key"
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={revealed ? "Hide API key" : "Show API key"}
-                    aria-pressed={revealed}
-                    onClick={() => setRevealed((v) => !v)}
-                    className="absolute top-0.5 right-0.5"
+          <form id="email-form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="apiKey">RESEND_API_KEY</label>
+              <div className="input-wrap">
+                <input
+                  id="apiKey"
+                  name="apiKey"
+                  type={revealed ? "text" : "password"}
+                  required
+                  placeholder="re_..."
+                  value={form.apiKey}
+                  onChange={(e) => updateField("apiKey", e.target.value)}
+                />
+                <button
+                  id="toggle-api-key"
+                  type="button"
+                  className="reveal"
+                  aria-label={revealed ? "Hide API key" : "Show API key"}
+                  aria-pressed={revealed}
+                  onClick={() => setRevealed((v) => !v)}
+                >
+                  <svg
+                    className="icon-eye"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
-                    {revealed ? <EyeOff /> : <Eye />}
-                  </Button>
-                </div>
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg
+                    className="icon-eye-off"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                    <path d="M1 1l22 22"></path>
+                    <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"></path>
+                  </svg>
+                </button>
               </div>
+            </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="fromName">Sender Name (optional)</Label>
-                <Input
-                  id="fromName"
-                  name="fromName"
-                  type="text"
-                  placeholder="Acme"
-                  value={form.fromName}
-                  onChange={(e) => updateField("fromName", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="fromEmail">Sender Email</Label>
-                <Input
-                  id="fromEmail"
-                  name="fromEmail"
-                  type="email"
-                  required
-                  placeholder="onboarding@resend.dev"
-                  value={form.fromEmail}
-                  onChange={(e) => updateField("fromEmail", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="to">To (destination)</Label>
-                <Input
-                  id="to"
-                  name="to"
-                  type="email"
-                  required
-                  placeholder="hello@example.com"
-                  value={form.to}
-                  onChange={(e) => updateField("to", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="subject">Subject</Label>
-                <Input
-                  id="subject"
-                  name="subject"
-                  type="text"
-                  required
-                  placeholder="Hello!"
-                  value={form.subject}
-                  onChange={(e) => updateField("subject", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="content">Content (HTML supported)</Label>
-                <Textarea
-                  id="content"
-                  name="content"
-                  required
-                  rows={6}
-                  className="min-h-[120px]"
-                  placeholder="<p>Hello world!</p>"
-                  value={form.content}
-                  onChange={(e) => updateField("content", e.target.value)}
-                />
-              </div>
-
-              <Button type="submit" className="w-full" disabled={sending}>
-                {sending ? "Sending..." : "Send Email"}
-              </Button>
-            </form>
-
-            {result && (
-              <div
-                id="result"
-                className={cn(
-                  "mt-4 rounded-lg border px-3 py-3 text-sm",
-                  result.kind === "success"
-                    ? "border-emerald-600/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                    : "border-destructive/40 bg-destructive/10 text-destructive",
-                )}
-                dangerouslySetInnerHTML={{ __html: result.html }}
+            <div className="form-group">
+              <label htmlFor="fromName">Sender Name (optional)</label>
+              <input
+                id="fromName"
+                name="fromName"
+                type="text"
+                placeholder="Acme"
+                value={form.fromName}
+                onChange={(e) => updateField("fromName", e.target.value)}
               />
-            )}
-          </CardContent>
-        </Card>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="fromEmail">Sender Email</label>
+              <input
+                id="fromEmail"
+                name="fromEmail"
+                type="email"
+                required
+                placeholder="onboarding@resend.dev"
+                value={form.fromEmail}
+                onChange={(e) => updateField("fromEmail", e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="to">To (destination)</label>
+              <input
+                id="to"
+                name="to"
+                type="email"
+                required
+                placeholder="hello@example.com"
+                value={form.to}
+                onChange={(e) => updateField("to", e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="subject">Subject</label>
+              <input
+                id="subject"
+                name="subject"
+                type="text"
+                required
+                placeholder="Hello!"
+                value={form.subject}
+                onChange={(e) => updateField("subject", e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="content">Content (HTML supported)</label>
+              <textarea
+                id="content"
+                name="content"
+                required
+                rows={6}
+                placeholder="<p>Hello world!</p>"
+                value={form.content}
+                onChange={(e) => updateField("content", e.target.value)}
+              ></textarea>
+            </div>
+
+            <button type="submit" className="btn" disabled={sending}>
+              {sending ? "Sending..." : "Send Email"}
+            </button>
+          </form>
+
+          {result && (
+            <div
+              id="result"
+              className={`alert ${result.kind}`}
+              dangerouslySetInnerHTML={{ __html: result.html }}
+            />
+          )}
+        </div>
       </main>
-    </div>
+    </>
   );
 }
