@@ -1,0 +1,16 @@
+# User Taste Profile
+- Casual, concise communication; uses informal language ("pls"). Confidence: 0.7
+- Provides requirements in numbered lists upfront when specifying features to build. Confidence: 0.7
+- Prefers to provide documentation/reference URLs for the agent to read rather than explaining APIs or tools themselves. Confidence: 0.75
+- Uses pnpm as their package manager; explicitly corrects the agent if npm/npx is used instead. Confidence: 0.9
+- Prefers Astro over Next.js for web projects; explicitly asked to rewrite a Next.js app in Astro and "drop nextjs." Confidence: 0.75
+- Explicitly asks for simple implementations when building tools; avoids over-engineering. Confidence: 0.7
+- Prefers light theme as the default appearance in UIs; explicitly requested "use light theme by default." Confidence: 0.65
+- Wants a visible theme switcher/toggle button so users can change between light and dark themes. Confidence: 0.6
+- Communicates bilingually: quick instructions/commands in English, but asks conceptual/explanation questions in Indonesian and expects the answer in Indonesian. Confidence: 0.7
+- Asks for conceptual explanations of API parameters/concepts (e.g. what `headers` means) rather than just accepting the code, and appreciates concrete usage examples. Confidence: 0.6
+- Prefers form inputs split into separate, single-purpose fields rather than one combined free-text field (e.g. splitting `Name <email>` into distinct name/email inputs), with explicit "(optional)"/"required" labeling on each. Confidence: 0.55
+- Wants secret/credential inputs (API keys, etc.) masked by default with an inline reveal control (eye button on the right of the field) to toggle visibility. Confidence: 0.5
+- Wants in-UI observability in tools/dashboards: asks for a visible log panel (e.g. on the side) showing operation status such as credential validity, available resources, and success/failure of actions, rather than relying on the console. Confidence: 0.55
+- Cares about repository hygiene: expects a "proper" .gitignore (build output, generated types, dependencies, logs, env files, caches, editor/OS files) to be set up, not just a minimal one. Confidence: 0.6
+- Prefers UI containers sized explicitly (fixed width/height) rather than hugging content or growing with it; e.g. asked for the log panel to be "full even in blank (not hug content, not growth, but directly enlarged)". Confidence: 0.55
