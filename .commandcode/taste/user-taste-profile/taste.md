@@ -16,3 +16,4 @@
 - Cares about repository hygiene: expects a "proper" .gitignore (build output, generated types, dependencies, logs, env files, caches, editor/OS files) to be set up, not just a minimal one. Confidence: 0.6
 - Prefers UI containers sized explicitly (fixed width/height) rather than hugging content or growing with it; e.g. asked for the log panel to be "full even in blank (not hug content, not growth, but directly enlarged)". Confidence: 0.55
 - Prefers NOT to use shadcn/ui or shadcn-style component libraries; after shadcn was added, asked to "revert. drop shadcn. i prefer not using it." Don't add shadcn or similar component-library dependencies unless explicitly requested. Confidence: 0.8
+- Delegates running the app to the agent: issues terse commands like "start dev server" and expects the agent to launch it (in the background) and report back the URL and how to stop it. Confidence: 0.5
